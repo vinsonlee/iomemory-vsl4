@@ -330,7 +330,11 @@ int kfio_sgl_map_bytes_gen(kfio_sg_list_t *sgl, const void *buffer, uint32_t siz
 
             // XXX Do we need to widen the interface to allow non-writable here?
             down_read(&current->mm->mmap_sem);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+            retval = get_user_pages(GET_USER_PAGES_TASK (fio_uintptr_t)bp, 1, FOLL_WRITE, (struct page **)&page, NULL);
+#else
             retval = get_user_pages(GET_USER_PAGES_TASK (fio_uintptr_t)bp, 1, 1, 0, (struct page **)&page, NULL);
+#endif
             up_read(&current->mm->mmap_sem);
             if (retval <= 0)
             {
