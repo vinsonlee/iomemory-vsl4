@@ -1360,14 +1360,20 @@ KFIOC_NEW_BARRIER_SCHEME()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 void kfioc_hew_barrier_scheme(void)
 {
     struct request_queue q;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+    queue_flag_set(QUEUE_FLAG_WC, &q);
+    queue_flag_set(QUEUE_FLAG_FUA, &q);
+#else
     q.flush_flags = REQ_FLUSH | REQ_FUA;
+#endif
 }
 '
-    kfioc_test "$test_code" KFIOC_NEW_BARRIER_SCHEME 1 -Werror
+    kfioc_test "$test_code" KFIOC_NEW_BARRIER_SCHEME 1 "-Werror -Wframe-larger-than=4096"
 }
 
 # flag:          KFIOC_HAS_BLK_FS_REQUEST

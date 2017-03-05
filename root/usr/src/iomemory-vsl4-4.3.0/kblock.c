@@ -887,7 +887,12 @@ static int linux_bdev_expose_disk(struct fio_bdev *bdev)
      *
      * We set REQ_FUA and REQ_FLUSH to ensure ordering (barriers) and to flush (on non-powercut cards).
      */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+    queue_flag_set(QUEUE_FLAG_FUA, rq);
+    queue_flag_set(QUEUE_FLAG_WC, rq);
+#else
     rq->flush_flags = REQ_FUA | REQ_FLUSH;
+#endif
 #elif KFIOC_BARRIER == 1
     // Ignore if ordered mode is wrong - linux will complain
     blk_queue_ordered(rq, iodrive_barrier_type, kfio_prepare_flush);
