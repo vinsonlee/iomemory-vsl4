@@ -1404,7 +1404,11 @@ static int kfio_bio_is_discard(struct bio *bio)
 #if KFIOC_HAS_BIO_RW_DISCARD
     return bio->bi_rw & (1 << BIO_RW_DISCARD);
 #else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+    return (bio_op(bio) == REQ_OP_DISCARD);
+#else
     return bio->bi_rw & REQ_DISCARD;
+#endif
 #endif
 #else
     return bio_rw_flagged(bio, BIO_RW_DISCARD);
@@ -1426,8 +1430,13 @@ static void kfio_dump_bio(const char *msg, const struct bio * const bio)
     // Use a local conversion to avoid printf format warnings on some platforms
     sector = (uint64_t)BI_SECTOR(bio);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+    infprint("%s: sector: %llx: flags: %lx : opf: %x : vcnt: %x", msg,
+             sector, (unsigned long)bio->bi_flags, bio->bi_opf, bio->bi_vcnt);
+#else
     infprint("%s: sector: %llx: flags: %lx : rw: %lx : vcnt: %x", msg,
              sector, (unsigned long)bio->bi_flags, bio->bi_rw, bio->bi_vcnt);
+#endif
     infprint("%s : idx: %x : phys_segments: %x : size: %x",
              msg, BI_IDX(bio), bio->bi_phys_segments, BI_SIZE(bio));
 
@@ -1479,7 +1488,11 @@ static inline void kfio_set_comp_cpu(kfio_bio_t *fbio, struct bio *bio)
 static unsigned long __kfio_bio_sync(struct bio *bio)
 {
 #if KFIOC_HAS_UNIFIED_BLKTYPES
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+    return bio->bi_opf & REQ_SYNC;
+#else
     return bio->bi_rw & REQ_SYNC;
+#endif
 #elif KFIOC_HAS_BIO_RW_FLAGGED
     return bio_rw_flagged(bio, BIO_RW_SYNCIO);
 #else
@@ -2939,7 +2952,11 @@ static void kfio_req_completor(kfio_bio_t *fbio, uint64_t bytes_done, int error)
 static inline bool rq_is_empty_flush(const struct request *req)
 {
 #if KFIOC_NEW_BARRIER_SCHEME == 1
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+    if (blk_rq_bytes(req) == 0 && req->cmd_flags & REQ_PREFLUSH)
+#else
     if (blk_rq_bytes(req) == 0 && req->cmd_flags & REQ_FLUSH)
+#endif
     {
         return true;
     }
@@ -2995,7 +3012,11 @@ static kfio_bio_t *kfio_request_to_bio(kfio_disk_t *disk, struct request *req,
     else
 #if KFIOC_DISCARD == 1
     /* Detect trim requests. */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+    if (enable_discard && (req_op(req) == REQ_OP_DISCARD))
+#else
     if (enable_discard && (req->cmd_flags & REQ_DISCARD))
+#endif
     {
         kassert((blk_rq_pos(req) << 9) % bdev->bdev_block_size == 0);
         fbio->fbio_cmd = KBIO_CMD_DISCARD;
@@ -3062,8 +3083,13 @@ static kfio_bio_t *kfio_request_to_bio(kfio_disk_t *disk, struct request *req,
                 int bv_i;
 #endif
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+                infprint("\tbio %p sector %lu size 0x%08x flags 0x%08lx rw 0x%08x\n", lbio,
+                         (unsigned long)BI_SECTOR(lbio), BI_SIZE(lbio), (unsigned long)lbio->bi_flags, lbio->bi_opf);
+#else
                 infprint("\tbio %p sector %lu size 0x%08x flags 0x%08lx rw 0x%08lx\n", lbio,
                          (unsigned long)BI_SECTOR(lbio), BI_SIZE(lbio), (unsigned long)lbio->bi_flags, lbio->bi_rw);
+#endif
                 infprint("\t\tvcnt %u idx %u\n", lbio->bi_vcnt, BI_IDX(lbio));
 
                 bio_for_each_segment(vec, lbio, bv_i)
