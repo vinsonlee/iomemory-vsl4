@@ -35,6 +35,7 @@
 #include <linux/cpu.h>
 #include <linux/list.h>
 #include <linux/notifier.h>
+#include <linux/version.h>
 
 /**
  * @ingroup PORT_LINUX
@@ -55,7 +56,39 @@ struct kfio_cpu_notify {
     struct list_head list;
     kfio_cpu_notify_fn *func;
 };
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0)
+static enum cpuhp_state hp_online;
+#endif
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0)
+static int send_event_all_0(unsigned int cpu)
+{
+        struct kfio_cpu_notify *kcn;
+
+        spin_lock_irq(&hotplug_lock);
+
+        list_for_each_entry(kcn, &notify_list, list)
+            kcn->func(0, (kfio_cpu_t) cpu);
+
+        spin_unlock_irq(&hotplug_lock);
+
+        return 0;
+}
+
+static int send_event_all_1(unsigned int cpu)
+{
+        struct kfio_cpu_notify *kcn;
+
+        spin_lock_irq(&hotplug_lock);
+
+        list_for_each_entry(kcn, &notify_list, list)
+            kcn->func(1, (kfio_cpu_t) cpu);
+
+        spin_unlock_irq(&hotplug_lock);
+
+        return 0;
+}
+#else
 static void send_event_all(int online_flag, kfio_cpu_t cpu)
 {
         struct kfio_cpu_notify *kcn;
@@ -95,6 +128,7 @@ static struct notifier_block kfio_linux_cpu_notifier = {
     .notifier_call = notify_fn,
 };
 #endif
+#endif
 
 int kfio_register_cpu_notifier(kfio_cpu_notify_fn *func)
 {
@@ -119,7 +153,14 @@ int kfio_register_cpu_notifier(kfio_cpu_notify_fn *func)
 
     if (do_register)
     {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0)
+        hp_online = cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
+                                              "iomemory-vsl:online",
+                                              send_event_all_1,
+                                              send_event_all_0);
+#else
         register_cpu_notifier(&kfio_linux_cpu_notifier);
+#endif
     }
 #endif
     return 0;
@@ -156,7 +197,11 @@ void kfio_unregister_cpu_notifier(kfio_cpu_notify_fn *func)
      */
     if (do_unregister != 0)
     {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0)
+        cpuhp_remove_state_nocalls(hp_online);
+#else
         unregister_cpu_notifier(&kfio_linux_cpu_notifier);
+#endif
     }
 
 #endif
