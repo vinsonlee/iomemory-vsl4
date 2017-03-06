@@ -837,12 +837,14 @@ iodrive_pci_error_detected (struct pci_dev *dev, enum pci_channel_state error)
     return PCI_ERS_RESULT_DISCONNECT;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 static pci_ers_result_t
 iodrive_pcie_link_reset (struct pci_dev *dev)
 {
     errprint_lbl(pci_name(dev), ERRID_CMN_LINUX_PCI_LINK_RESET, "iodrive: PCIe link reset\n");
     return PCI_ERS_RESULT_DISCONNECT;
 }
+#endif
 
 static pci_ers_result_t
 iodrive_pci_slot_reset (struct pci_dev *dev)
@@ -853,7 +855,9 @@ iodrive_pci_slot_reset (struct pci_dev *dev)
 
 static struct pci_error_handlers iodrive_pci_error_handlers = {
   error_detected:iodrive_pci_error_detected,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
   link_reset:iodrive_pcie_link_reset,
+#endif
   slot_reset:iodrive_pci_slot_reset,
 };
 #endif
