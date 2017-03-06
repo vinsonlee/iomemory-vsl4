@@ -1363,7 +1363,7 @@ KFIOC_NEW_BARRIER_SCHEME()
 #include <linux/version.h>
 void kfioc_hew_barrier_scheme(void)
 {
-    struct request_queue q;
+    struct request_queue q = { };
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
     queue_flag_set(QUEUE_FLAG_WC, &q);
