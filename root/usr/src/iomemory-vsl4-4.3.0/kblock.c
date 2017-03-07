@@ -3174,7 +3174,11 @@ static void kfio_do_request(struct request_queue *q)
 #if KFIOC_HAS_BLK_FS_REQUEST
                 if (blk_fs_request(req))
 #else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
+                if (!blk_rq_is_passthrough(req))
+#else
                 if (req->cmd_type == REQ_TYPE_FS)
+#endif
 #endif
                 {
                     // Do not allow improperly aligned requests to go through. OS should
