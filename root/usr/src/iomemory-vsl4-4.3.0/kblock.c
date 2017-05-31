@@ -2762,7 +2762,11 @@ static void kfio_elevator_change(struct request_queue *q, char *name)
 // We don't use the real elevator_change since it isn't in the RedHat Whitelist
 // see FH-14626 for the gory details.
 #if !defined(__VMKLNX__)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
+    elevator_exit(q, q->elevator);
+#else
     elevator_exit(q->elevator);
+#endif
 # if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
     q->elevator = NULL;
 # endif
