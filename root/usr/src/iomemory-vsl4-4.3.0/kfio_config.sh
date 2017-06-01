@@ -2570,9 +2570,14 @@ KFIOC_BLKMQ_COMPLETE_NO_ERROR()
     local test_flag="$1"
     local test_code='
 #include <linux/blk-mq.h>
+#include <linux/version.h>
 
 void kfioc_blkmq_complete_no_error(void) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
+    blk_mq_complete_request(NULL, 0);
+#else
     blk_mq_complete_request(NULL);
+#endif
 }
 '
     kfioc_test "$test_code" "$test_flag" 1
