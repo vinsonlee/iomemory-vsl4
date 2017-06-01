@@ -1218,9 +1218,12 @@ KFIOC_DISCARD_ZEROES_IN_LIMITS()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 void kfioc_test_blk_request_queue_discard_zeroes_data(void) {
-    struct request_queue q;
+    struct request_queue q = { };
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
     q.limits.discard_zeroes_data = 1;
+#endif
 }
 '
 

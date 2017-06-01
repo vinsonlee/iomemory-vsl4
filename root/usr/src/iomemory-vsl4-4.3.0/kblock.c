@@ -863,7 +863,9 @@ static int linux_bdev_expose_disk(struct fio_bdev *bdev)
 #if KFIOC_DISCARD_ZEROES_IN_LIMITS == 1
         if (fio_bdev_ptrim_available(bdev))
         {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
             rq->limits.discard_zeroes_data = 1;
+#endif
         }
 #endif  /* KFIOC_DISCARD_ZEROES_IN_LIMITS */
 
