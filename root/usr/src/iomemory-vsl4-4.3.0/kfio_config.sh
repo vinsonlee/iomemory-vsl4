@@ -2600,9 +2600,10 @@ int kfioc_has_blk_mq(void)
     struct blk_mq_ops mq_ops = { };
     tag_set.nr_hw_queues = 1;
     tag_set.cmd_size = 0;
+    tag_set.ops = &mq_ops;
     if (!blk_mq_alloc_tag_set(&tag_set))
     {
-        return blk_mq_init_queue(&mq_ops);
+        blk_mq_init_queue(&tag_set);
     }
     blk_mq_run_hw_queues(NULL,0);
     return 1;
