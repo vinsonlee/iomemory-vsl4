@@ -32,6 +32,7 @@
 
 #include <linux/kernel.h>
 #include <linux/kthread.h>
+#include <linux/version.h>
 #include <asm/uaccess.h>
 #include <fio/port/dbgset.h>
 
@@ -281,12 +282,20 @@ int fusion_create_kthread(fusion_kthread_func_t func, void *data, void *fusion_n
  */
 int kfio_copy_from_user(void *to, const void *from, unsigned len)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
+    return raw_copy_from_user(to, from, len);
+#else
     return copy_from_user(to, from, len);
+#endif
 }
 
 int kfio_copy_to_user(void *to, const void *from, unsigned len)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
+    return raw_copy_to_user(to, from, len);
+#else
     return copy_to_user(to, from, len);
+#endif
 }
 
 void kfio_dump_stack()
