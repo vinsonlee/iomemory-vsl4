@@ -668,7 +668,9 @@ static int fio_init_hctx(struct blk_mq_hw_ctx *hctx, void *data, unsigned int i)
 
 static struct blk_mq_ops fio_mq_ops = {
     .queue_rq   = fio_queue_rq,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,9,0)
     .map_queue  = blk_mq_map_queue,
+#endif
     .init_hctx  = fio_init_hctx,
 };
 
