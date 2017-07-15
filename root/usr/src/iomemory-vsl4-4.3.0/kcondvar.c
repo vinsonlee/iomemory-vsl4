@@ -36,6 +36,7 @@
 #include <fio/port/ktime.h>
 #if !defined(__VMKLNX__)
 #include <linux/sched.h>    // for struct task_struct used in kassert
+#include <linux/version.h>
 #endif
 
 /**
@@ -68,7 +69,11 @@
 /*******************************************************************************
 *******************************************************************************/
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
+C_ASSERT(sizeof(fusion_condvar_t) >= sizeof(wait_queue_entry_t));
+#else
 C_ASSERT(sizeof(fusion_condvar_t) >= sizeof(wait_queue_t));
+#endif
 
 void noinline fusion_schedule_yield(void)
 {
