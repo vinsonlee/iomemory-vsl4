@@ -1543,7 +1543,11 @@ static void __kfio_bio_complete(struct bio *bio, uint32_t bytes_complete, int er
 {
 #if KFIOC_BIO_ENDIO_REMOVED_ERROR
     /* now a member of the bio struct */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
+    bio->bi_status = error;
+#else
     bio->bi_error = error;
+#endif
 #endif /* !KFIOC_BIO_ENDIO_HAS_ERROR */
 
     bio_endio(bio
