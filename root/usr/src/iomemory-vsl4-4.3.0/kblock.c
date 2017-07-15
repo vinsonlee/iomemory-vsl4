@@ -599,7 +599,11 @@ static void kfio_do_request(struct request_queue *q)
 static kfio_bio_t *kfio_request_to_bio(kfio_disk_t *disk, struct request *req,
                                        bool can_block);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
+static blk_status_t fio_queue_rq(struct blk_mq_hw_ctx *hctx,
+#else
 static int fio_queue_rq(struct blk_mq_hw_ctx *hctx,
+#endif
            const struct blk_mq_queue_data *bd)
 {
     struct kfio_disk *disk = hctx->driver_data;
@@ -639,13 +643,25 @@ static int fio_queue_rq(struct blk_mq_hw_ctx *hctx,
          */
     }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
+    return BLK_STS_OK;
+#else
     return BLK_MQ_RQ_QUEUE_OK;
+#endif
 busy:
     blk_mq_stop_hw_queue(hctx);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
+    return BLK_STS_RESOURCE;
+#else
     return BLK_MQ_RQ_QUEUE_BUSY;
+#endif
 retry:
     blk_mq_run_hw_queues(hctx->queue, true);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
+    return BLK_STS_RESOURCE;
+#else
     return BLK_MQ_RQ_QUEUE_BUSY;
+#endif
 }
 
 static int fio_init_hctx(struct blk_mq_hw_ctx *hctx, void *data, unsigned int i)
