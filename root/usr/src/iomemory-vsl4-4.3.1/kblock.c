@@ -2507,7 +2507,9 @@ static int kfio_make_request(struct request_queue *queue, struct bio *bio)
     }
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,13,0)
     blk_queue_bounce(queue, &bio);
+#endif
 
     /*
      * The atomic chains have more overhead (using atomic contexts etc) so
