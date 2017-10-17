@@ -2970,7 +2970,11 @@ static inline bool rq_is_empty_flush(const struct request *req)
         return true;
     }
 #elif KFIOC_BARRIER_USES_QUEUE_FLAGS == 1
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
     if (blk_rq_bytes(req) == 0 && req_op(req) == REQ_OP_FLUSH)
+#else
+    if (blk_rq_bytes(req) == 0 && req->cmd_flags == REQ_FLUSH)
+#endif
     {
         return true;
     }
