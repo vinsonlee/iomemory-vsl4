@@ -139,8 +139,8 @@ Refer to the section entitled "Xilinx Microblaze copyright and license" below.
 
 <=============================================================================>
 
-zlib compression library, version 1.2.7 (2 May 2012)
-Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler
+zlib compression library, version 1.2.11 (15 January 2017)
+Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler
 
 Refer to the section entitled "zlib license" below.
 
@@ -828,9 +828,9 @@ DAMAGES.
 zlib copyright and license
 
 zlib.h -- interface of the 'zlib' general purpose compression library
-  version 1.2.7, May 2nd, 2012
+  version 1.2.11, January 15th, 2017
 
-  Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler
+  Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
