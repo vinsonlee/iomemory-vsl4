@@ -2300,7 +2300,11 @@ static struct request_queue *kfio_alloc_queue(struct kfio_disk *dp,
     test_safe_plugging();
 
 #if KFIOC_HAS_BLK_ALLOC_QUEUE_NODE
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    rq = blk_alloc_queue_node(GFP_NOIO, node, NULL);
+#else
     rq = blk_alloc_queue_node(GFP_NOIO, node);
+#endif
 #else
     rq = blk_alloc_queue(GFP_NOIO);
 #endif

@@ -2298,11 +2298,16 @@ KFIOC_HAS_BLK_ALLOC_QUEUE_NODE()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 
 void kfioc_has_blk_alloc_queue_node(void)
 {
     struct request_queue *rq = NULL;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    rq = blk_alloc_queue_node(GFP_NOIO, -1, NULL);
+#else
     rq = blk_alloc_queue_node(GFP_NOIO, -1);
+#endif
 }
 '
 
