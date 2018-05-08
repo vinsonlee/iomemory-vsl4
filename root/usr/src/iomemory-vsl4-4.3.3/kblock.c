@@ -904,7 +904,11 @@ static int linux_bdev_expose_disk(struct fio_bdev *bdev)
         }
 #endif  /* KFIOC_DISCARD_ZEROES_IN_LIMITS */
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+        blk_queue_flag_set(QUEUE_FLAG_DISCARD, rq);
+#else
         queue_flag_set_unlocked(QUEUE_FLAG_DISCARD, rq);
+#endif
         // XXXXXXX !!! WARNING - power of two sector sizes only !!! (always true in standard linux)
         blk_queue_max_discard_sectors(rq, (UINT_MAX & ~((unsigned int) bdev->bdev_block_size - 1)) >> 9);
 #if KFIOC_DISCARD_GRANULARITY_IN_LIMITS
@@ -927,7 +931,11 @@ static int linux_bdev_expose_disk(struct fio_bdev *bdev)
      */
     rq->flush_flags = REQ_FUA | REQ_FLUSH;
 #elif KFIOC_BARRIER_USES_QUEUE_FLAGS
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    blk_queue_flag_set(QUEUE_FLAG_WC, rq);
+#else
     queue_flag_set(QUEUE_FLAG_WC, rq);
+#endif
 #elif KFIOC_BARRIER == 1
     // Ignore if ordered mode is wrong - linux will complain
     blk_queue_ordered(rq, iodrive_barrier_type, kfio_prepare_flush);
@@ -948,11 +956,19 @@ static int linux_bdev_expose_disk(struct fio_bdev *bdev)
 
 #if KFIOC_QUEUE_HAS_NONROT_FLAG
     /* Tell the kernel we are a non-rotational storage device */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    blk_queue_flag_set(QUEUE_FLAG_NONROT, rq);
+#else
     queue_flag_set_unlocked(QUEUE_FLAG_NONROT, rq);
+#endif
 #endif
 #if KFIOC_QUEUE_HAS_RANDOM_FLAG
     /* Disable device global entropy contribution */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, rq);
+#else
     queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, rq);
+#endif
 #endif
 
     disk->gd = gd = alloc_disk(FIO_NUM_MINORS);
