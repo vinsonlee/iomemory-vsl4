@@ -1216,10 +1216,15 @@ KFIOC_DISCARD()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 
 
 void kfioc_test_blk_queue_set_discard(void) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+	blk_queue_flag_set(QUEUE_FLAG_DISCARD,NULL);
+#else
 	queue_flag_set_unlocked(QUEUE_FLAG_DISCARD,NULL);
+#endif
 }
 '
 
@@ -2009,9 +2014,14 @@ KFIOC_QUEUE_HAS_NONROT_FLAG()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 void kfioc_check_nonrot_flag(void)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    blk_queue_flag_set(QUEUE_FLAG_NONROT, NULL);
+#else
     queue_flag_set_unlocked(QUEUE_FLAG_NONROT, NULL);
+#endif
 }
 '
     kfioc_test "$test_code" KFIOC_QUEUE_HAS_NONROT_FLAG 1 -Werror
@@ -2025,9 +2035,14 @@ KFIOC_QUEUE_HAS_RANDOM_FLAG()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 void kfioc_check_random_flag(void)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, NULL);
+#else
     queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, NULL);
+#endif
 }
 '
     kfioc_test "$test_code" KFIOC_QUEUE_HAS_RANDOM_FLAG 1 -Werror
