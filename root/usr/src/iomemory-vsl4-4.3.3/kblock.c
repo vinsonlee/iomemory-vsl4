@@ -663,7 +663,11 @@ static int fio_queue_rq(struct blk_mq_hw_ctx *hctx, const struct blk_mq_queue_da
     return BLK_MQ_RQ_QUEUE_OK;
 #endif
 busy:
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,17,0)
+    blk_mq_delay_run_hw_queue(hctx, 1);
+#else
     blk_mq_delay_queue(hctx, 1);
+#endif
 #if KFIOC_BIO_ERROR_CHANGED_TO_STATUS
     return BLK_STS_RESOURCE;
 #else
