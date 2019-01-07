@@ -2718,6 +2718,7 @@ KFIOC_HAS_BLK_MQ()
 {
     local test_flag="$1"
     local test_code='
+#include <linux/version.h>
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3, 13, 0)
 #include <linux/blk-mq.h>
 
