@@ -1982,9 +1982,14 @@ KFIOC_BIOSET_CREATE_HAS_THIRD_ARG()
     local test_flag="$1"
     local test_code='
 #include <linux/bio.h>
+#include <linux/version.h>
 void foo(void)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,18,0)
+    bioset_init(NULL,0,0,0);
+#else
     bioset_create(0,0,0);
+#endif
 }
 '
     kfioc_test "$test_code" "$test_flag" 1 -Werror
