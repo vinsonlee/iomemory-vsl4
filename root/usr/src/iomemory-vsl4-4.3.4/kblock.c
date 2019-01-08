@@ -1317,7 +1317,11 @@ void linux_bdev_update_stats(struct fio_bdev *bdev, int dir, uint64_t totalsize,
             cpu = part_stat_lock();
             part_stat_inc(cpu, &gd->part0, ios[1]);
             part_stat_add(cpu, &gd->part0, sectors[1], totalsize >> 9);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,19,0)
+            part_stat_add(cpu, &gd->part0, nsecs[1],   duration * 1000);
+#else
             part_stat_add(cpu, &gd->part0, ticks[1],   kfio_div64_64(duration * HZ, 1000000));
+#endif
             part_stat_unlock();
 # endif /* defined(CONFIG_PREEMPT_RT) */
 # else /* KFIOC_PARTITION_STATS */
@@ -1355,7 +1359,11 @@ void linux_bdev_update_stats(struct fio_bdev *bdev, int dir, uint64_t totalsize,
             cpu = part_stat_lock();
             part_stat_inc(cpu, &gd->part0, ios[0]);
             part_stat_add(cpu, &gd->part0, sectors[0], totalsize >> 9);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,19,0)
+            part_stat_add(cpu, &gd->part0, nsecs[0],   duration * 1000);
+#else
             part_stat_add(cpu, &gd->part0, ticks[0],   kfio_div64_64(duration * HZ, 1000000));
+#endif
             part_stat_unlock();
 # endif /* defined(CONFIG_PREEMPT_RT) */
 # else /* KFIOC_PARTITION_STATS */
