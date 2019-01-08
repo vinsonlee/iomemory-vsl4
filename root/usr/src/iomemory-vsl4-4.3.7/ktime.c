@@ -33,6 +33,7 @@
 #include <linux/time.h>
 #include <linux/timer.h>
 #include <linux/delay.h>
+#include <linux/version.h>
 
 C_ASSERT(sizeof(struct fusion_timer_list) >= sizeof(struct timer_list));
 
@@ -123,7 +124,12 @@ uint64_t noinline fusion_getmicrotime(void)
 /// @brief return current UTC wall clock time in seconds since the Unix epoch (Jan 1 1970).
 uint64_t noinline fusion_getwallclocktime(void)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,20,0)
+    struct timespec64 ts;
+    ktime_get_coarse_real_ts64(&ts);
+#else
     struct timespec ts = current_kernel_time();
+#endif
 
     return (uint64_t)ts.tv_sec;
 }
