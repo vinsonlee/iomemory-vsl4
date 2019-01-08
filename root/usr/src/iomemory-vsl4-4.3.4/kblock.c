@@ -2929,7 +2929,7 @@ static void kfio_elevator_change(struct request_queue *q, char *name)
 {
 // We don't use the real elevator_change since it isn't in the RedHat Whitelist
 // see FH-14626 for the gory details.
-#if !defined(__VMKLNX__)
+#if !defined(__VMKLNX__) && LINUX_VERSION_CODE < KERNEL_VERSION(4,18,0)
 #if KFIOC_ELEVATOR_EXIT_HAS_REQQ_PARAM
     elevator_exit(q, q->elevator);
 #else

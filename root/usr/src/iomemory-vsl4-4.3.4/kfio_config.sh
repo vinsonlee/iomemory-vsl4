@@ -2979,10 +2979,15 @@ KFIOC_ELEVATOR_EXIT_HAS_REQQ_PARAM()
     local test_code='
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
+#include <linux/version.h>
 
 void test_elevator_exit_params(struct request_queue* rq)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,18,0)
+    (void)rq;
+#else
     elevator_exit(rq, rq->elevator);
+#endif
 }
 '
     kfioc_test "$test_code" "$test_flag" 1 -Werror
