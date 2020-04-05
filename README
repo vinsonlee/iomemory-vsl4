@@ -62,12 +62,12 @@ To build a .rpm installation package:
 3. To build an .rpm installation package for the current kernel from a
    .src.rpm, run this command:
 
-       $ rpmbuild --rebuild iomemory-vsl4-4.3.4.977-1.src.rpm
+       $ rpmbuild --rebuild iomemory-vsl4-4.3.7.1205-1.src.rpm
 
    When using a .src.rpm source package for a non-running kernel, run this
    command:
 
-       $ rpmbuild --rebuild --define 'rpm_kernel_version 2.6.24.4-64.fc8-x86_64' iomemory-vsl4-4.3.4.977-1.src.rpm
+       $ rpmbuild --rebuild --define 'rpm_kernel_version 2.6.24.4-64.fc8-x86_64' iomemory-vsl4-4.3.7.1205-1.src.rpm
 
    The new .rpm package is located in a directory that is indicated in the
    output from the rpmbuild command.  To find it, look for the "Wrote:"
@@ -76,12 +76,12 @@ To build a .rpm installation package:
    output below:
 
        ...
-       Processing files: iomemory-vsl4-source-4.3.4.977-1
+       Processing files: iomemory-vsl4-source-4.3.7.1205-1
        Requires(rpmlib): rpmlib(PayloadFilesHavePrefix) <= 4.0-1 rpmlib(CompressedFileNames) <= 3.0.4-1
        Obsoletes: iodrive-driver-source
-       Checking for unpackaged file(s): /usr/lib/rpm/check-files /var/tmp/iomemory-vsl4-4.3.4.977-root
-       Wrote: /usr/src/redhat/RPMS/x86_64/iomemory-vsl4-2.6.18-128.el5-4.3.4.977-1.x86_64.rpm
-       Wrote: /usr/src/redhat/RPMS/x86_64/iomemory-vsl4-source-4.3.4.977-1.x86_64.rpm
+       Checking for unpackaged file(s): /usr/lib/rpm/check-files /var/tmp/iomemory-vsl4-4.3.7.1205-root
+       Wrote: /usr/src/redhat/RPMS/x86_64/iomemory-vsl4-2.6.18-128.el5-4.3.7.1205-1.x86_64.rpm
+       Wrote: /usr/src/redhat/RPMS/x86_64/iomemory-vsl4-source-4.3.7.1205-1.x86_64.rpm
 
    Make a note of the .rpm location; you will need this information for the installation.
 
@@ -89,7 +89,7 @@ To build a .rpm installation package:
          .tar.bz2 file using similar rpmbuild commands to those listed
          above by using "-ta" instead of "--rebuild":
 
-             $ rpmbuild -ta iomemory-vsl4_4.3.4.977-1.tar.gz
+             $ rpmbuild -ta iomemory-vsl4_4.3.7.1205-1.tar.gz
 
 4. Install the generated driver in conjunction with any additional files
    (fio-util, fio-firmware, etc.) that have been downloaded from
@@ -116,11 +116,11 @@ To build a Debian installation package:
 
 3. Unpack the driver source file:
 
-       $ tar zxvf iomemory-vsl4_4.3.4.977-1.tar.gz
+       $ tar zxvf iomemory-vsl4_4.3.7.1205-1.tar.gz
 
 4. Change to the directory created in the previous step:
 
-       $ cd iomemory-vsl4-4.3.4.977
+       $ cd iomemory-vsl4-4.3.7.1205
 
 5. Begin the driver rebuild:
 
@@ -161,11 +161,11 @@ installing.
 
 3. Unpack the driver source file:
 
-       $ tar zxvf iomemory-vsl4_4.3.4.977-1.tar.gz
+       $ tar zxvf iomemory-vsl4_4.3.7.1205-1.tar.gz
 
    Change directory into the unpacked source:
 
-       $ cd iomemory-vsl4-4.3.4.977/root/usr/src/fio/iomemory-vsl4
+       $ cd iomemory-vsl4-4.3.7.1205/root/usr/src/fio/iomemory-vsl4
 
 4. Build the driver:
 
