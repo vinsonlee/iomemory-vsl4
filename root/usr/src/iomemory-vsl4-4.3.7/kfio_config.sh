@@ -2225,11 +2225,14 @@ KFIOC_HAS_QUEUE_LIMITS_CLUSTER()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 void has_queue_limits_cluster(void)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
      struct request_queue q;
      q.limits.cluster = 0;
      printk("%d", q.limits.cluster);
+#endif
 }
 '
     kfioc_test "$test_code" KFIOC_HAS_QUEUE_LIMITS_CLUSTER 1 -Werror

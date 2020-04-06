@@ -885,7 +885,9 @@ static int linux_bdev_expose_disk(struct fio_bdev *bdev)
     rq->queue_flags &= ~(1 << QUEUE_FLAG_CLUSTER);
 # endif
 #elif KFIOC_HAS_QUEUE_LIMITS_CLUSTER
+# if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
     rq->limits.cluster = 0;
+# endif
 #else
 # ifndef __VMKLNX__
 #  error "Do not know how to disable request queue clustering for this kernel."
