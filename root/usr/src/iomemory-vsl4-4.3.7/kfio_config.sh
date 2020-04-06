@@ -838,10 +838,13 @@ KFIOC_HAS_BLK_DELAY_QUEUE()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 
 void kfioc_test_blk_delay_queue(void)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
     blk_delay_queue(NULL, 0);
+#endif
 }
 '
 
