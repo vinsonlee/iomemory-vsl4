@@ -1786,10 +1786,13 @@ KFIOC_HAS_INFLIGHT_RW_ATOMIC()
     local test_code='
 #include <linux/blkdev.h>
 #include <linux/atomic.h>
+#include <linux/version.h>
 struct gendisk gd;
 void kfioc_has_inflight_rw_atomic(void)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
     atomic_set(&gd.part0.in_flight[0], 0);
+#endif
 }
 '
 
