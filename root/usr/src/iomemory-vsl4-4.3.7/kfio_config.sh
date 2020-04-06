@@ -1711,8 +1711,11 @@ KFIOC_USE_NEW_IO_SCHED()
     local test_flag="$1"
     local test_code='
 #include <linux/blkdev.h>
+#include <linux/version.h>
 void kfioc_has_new_sched(void) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
     blk_fetch_request(NULL);
+#endif
 }
 '
 
