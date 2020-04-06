@@ -1316,6 +1316,12 @@ void linux_bdev_update_stats(struct fio_bdev *bdev, int dir, uint64_t totalsize,
 #endif
 # if KFIOC_PARTITION_STATS
 # if !defined(CONFIG_PREEMPT_RT) && !defined(CONFIG_TREE_PREEMPT_RCU) && !defined(CONFIG_PREEMPT_RCU)
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+            part_stat_lock();
+            part_stat_inc(&gd->part0, ios[1]);
+            part_stat_add(&gd->part0, sectors[1], totalsize >> 9);
+            part_stat_add(&gd->part0, nsecs[1],   duration * FIO_NSEC_PER_USEC);
+# else
             int cpu;
 
             /*
@@ -1330,6 +1336,7 @@ void linux_bdev_update_stats(struct fio_bdev *bdev, int dir, uint64_t totalsize,
 #else
             part_stat_add(cpu, &gd->part0, ticks[1],   kfio_div64_64(duration * HZ, FIO_USEC_PER_SEC));
 #endif
+# endif /* Linux >= 5.0 */
             part_stat_unlock();
 # endif /* defined(CONFIG_PREEMPT_RT) */
 # else /* KFIOC_PARTITION_STATS */
@@ -1359,6 +1366,12 @@ void linux_bdev_update_stats(struct fio_bdev *bdev, int dir, uint64_t totalsize,
 #endif
 # if KFIOC_PARTITION_STATS
 # if !defined(CONFIG_PREEMPT_RT) && !defined(CONFIG_TREE_PREEMPT_RCU) && !defined(CONFIG_PREEMPT_RCU)
+# if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+            part_stat_lock();
+            part_stat_inc(&gd->part0, ios[0]);
+            part_stat_add(&gd->part0, sectors[0], totalsize >> 9);
+            part_stat_add(&gd->part0, nsecs[0],   duration * FIO_NSEC_PER_USEC);
+# else
             int cpu;
 
             /* part_stat_lock() with defined(CONFIG_PREEMPT_RT) can't be used!
@@ -1371,6 +1384,7 @@ void linux_bdev_update_stats(struct fio_bdev *bdev, int dir, uint64_t totalsize,
 #else
             part_stat_add(cpu, &gd->part0, ticks[0],   kfio_div64_64(duration * HZ, FIO_USEC_PER_SEC));
 #endif
+# endif /* Linux >= 5.0 */
             part_stat_unlock();
 # endif /* defined(CONFIG_PREEMPT_RT) */
 # else /* KFIOC_PARTITION_STATS */
