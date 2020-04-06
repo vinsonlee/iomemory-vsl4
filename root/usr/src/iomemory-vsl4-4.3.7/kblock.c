@@ -85,7 +85,7 @@
 #include <linux/buffer_head.h>
 #endif
 
-#if KFIOC_HAS_BLK_MQ
+#if KFIOC_HAS_BLK_MQ || LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
 #include <linux/blk-mq.h>
 #endif
 extern int use_workqueue;
@@ -1144,7 +1144,11 @@ static int linux_bdev_hide_disk(struct fio_bdev *bdev, uint32_t opflags)
         else
 #endif
         {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+            blk_mq_stop_hw_queues(disk->rq);
+#else
             blk_stop_queue(disk->rq);
+#endif
         }
 
         /*
