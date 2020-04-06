@@ -1662,9 +1662,17 @@ KFIOC_USE_IO_SCHED()
 #endif
 #endif
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+#include <linux/blk-mq.h>
+#else
 #include <linux/blkdev.h>
+#endif
 void kfioc_use_io_sched(void) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+    blk_mq_complete_request(NULL);
+#else
     blk_complete_request(NULL);
+#endif
 }
 '
 
