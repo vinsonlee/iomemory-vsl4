@@ -1461,7 +1461,9 @@ void linux_bdev_update_inflight(struct fio_bdev *bdev, int rw, int in_flight)
             dir = 1;
 
 #if KFIOC_HAS_INFLIGHT_RW_ATOMIC
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
         atomic_set(&gd->part0.in_flight[dir], in_flight);
+#endif
 #else
         gd->part0.in_flight[dir] = in_flight;
 #endif
