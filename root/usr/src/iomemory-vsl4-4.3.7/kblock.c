@@ -2375,12 +2375,15 @@ static void linux_bdev_backpressure(struct fio_bdev *bdev, int on)
     }
     else
     {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
         struct request_queue *q = disk->gd->queue;
+#endif
         fusion_cv_lock_irq(&disk->state_lk);
         fio_clear_bit_atomic(KFIO_DISK_HOLDOFF_BIT, &disk->disk_state);
         fusion_condvar_broadcast(&disk->state_cv);
         fusion_cv_unlock_irq(&disk->state_lk);
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
         /*
          * Re-kick the queue, if we stopped handing out writes
          * due to log pressure. Do this out-of-line, since we can
@@ -2416,6 +2419,7 @@ static void linux_bdev_backpressure(struct fio_bdev *bdev, int on)
 
             kfio_restart_queue(q);
         }
+#endif
     }
 }
 
@@ -2437,6 +2441,7 @@ void linux_bdev_lock_pending(struct fio_bdev *bdev, int pending)
     gd = disk->gd;
     q = gd->queue;
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
     /*
      * Only the request_fn driven model issues requests in a non-blocking
      * manner. The direct queued model does not need this.
@@ -2464,6 +2469,7 @@ void linux_bdev_lock_pending(struct fio_bdev *bdev, int pending)
             kfio_restart_queue(q);
         }
     }
+#endif
 #endif
 }
 
