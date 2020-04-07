@@ -2342,7 +2342,11 @@ static struct request_queue *kfio_alloc_queue(struct kfio_disk *dp,
     {
         rq->queuedata = dp;
         blk_queue_make_request(rq, kfio_make_request);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+        memcpy(&rq->queue_lock, (spinlock_t *)&dp->queue_lock, sizeof(dp->queue_lock));
+#else
         rq->queue_lock = (spinlock_t *)&dp->queue_lock;
+#endif
 #if KFIOC_REQUEST_QUEUE_HAS_UNPLUG_FN
         rq->unplug_fn = kfio_unplug;
 #endif
@@ -3426,7 +3430,11 @@ static void kfio_do_request(struct request_queue *q)
          * requeue again
          */
         disk->pending += rw;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+        spin_unlock_irq(&q->queue_lock);
+#else
         spin_unlock_irq(q->queue_lock);
+#endif
 
         list_for_each_safe(entry, tmp, &list)
         {
@@ -3445,9 +3453,17 @@ static void kfio_do_request(struct request_queue *q)
                 {
                     // Underlying hardware has failed. Retrying will not improve matters.
                     list_del_init(&req->queuelist);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+                    spin_lock_irq(&q->queue_lock);
+#else
                     spin_lock_irq(q->queue_lock);
+#endif
                     kfio_end_request(req, -EIO);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+                    spin_unlock_irq(&q->queue_lock);
+#else
                     spin_unlock_irq(q->queue_lock);
+#endif
                     queued++;
                     disk->pending--;
                     continue;
@@ -3481,7 +3497,11 @@ static void kfio_do_request(struct request_queue *q)
         // Give up a little time to keep the Soft Lockup complaints a rest
         fusion_cond_resched();
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+        spin_lock_irq(&q->queue_lock);
+#else
         spin_lock_irq(q->queue_lock);
+#endif
         if (!list_empty(&list))
         {
             LIST_HEAD(tmp_list);
